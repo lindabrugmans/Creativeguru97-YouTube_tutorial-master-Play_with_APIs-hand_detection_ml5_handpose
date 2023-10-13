@@ -3,13 +3,23 @@ let detections = [];
 
 let canvas;
 let video;
-
+let painting;
 let ratio;
+
+let brushPos
+let brushPosOld
+let isPainting = false;
 
 function setup() {
   // canvas = createCanvas(640, 480, WEBGL);
   canvas = createCanvas(1024, 768, WEBGL);//3D mode!!! 320 240
   canvas.id("canvas");
+
+  painting = createGraphics(width, height);
+  painting.background(255);
+
+  brushPos = createVector(0, 0, 0)
+  brushPosOld = createVector(0, 0, 0)
 
   let constraints = {
     video: {
@@ -27,7 +37,6 @@ function setup() {
   });
 
   ratio = 1.6; //width / video.width;
-  console.log(ratio);
 
   // video.id("video");
   // video.size(width, height);
@@ -41,7 +50,7 @@ function setup() {
   }
 
   handpose = ml5.handpose(video, options, modelReady);
-  colorMode(HSB);
+  // colorMode(HSB);
 }
 
 function modelReady() {
@@ -49,40 +58,105 @@ function modelReady() {
   handpose.on('predict', results => {
     detections = results;
 
-    console.log(detections);
+    // console.log(detections);
   });
 }
 
+function update() {
+  if (detections.length > 0) {
+    let xThumb = detections[0].landmarks[4][0];
+    let yThumb = detections[0].landmarks[4][1];
+    let zThumb = detections[0].landmarks[4][2];
+
+    let xIndex = detections[0].landmarks[8][0];
+    let yIndex = detections[0].landmarks[8][1];
+    let zIndex = detections[0].landmarks[8][2];
+
+    let v1 = createVector(xThumb, yThumb, zThumb);
+    let v2 = createVector(xIndex, yIndex, zIndex);
+
+    let dist = v1.dist(v2); // distance is 
+
+    brushPosOld = brushPos;
+    brushPos = v1;
+
+    if (dist < 40) {
+      
+      isPainting = true;
+      console.log("updating");
+    }
+    else {
+      // brushPosOld = brushPos;
+      console.log("reset");
+      isPainting = false;
+    }
+
+    // console.log(dist);
+  }
+  else {
+    isPainting = false;
+  }
+
+  // console.log(brushPos, brushPosOld)
+}
 
 function draw() {
-  // background(0);
-  clear();
+  update();
+  background(0);
+  //clear();
 
   //In webgl mode, origin of the coordinate setted to centre.
   //So I re-positioned it to top-left.
   translate(-width / 2, -height / 2);
 
+  if (isPainting) {
+
+    painting.fill(0, 0, 255);
+    // painting.ellipse(brushPos.x * ratio, brushPos.y * ratio, 20);
+    painting.strokeWeight(10);
+    painting.line(brushPos.x * ratio, brushPos.y * ratio, brushPosOld.x * ratio, brushPosOld.y * ratio);
+
+  }
+
+
+  image(painting, 0, 0, width, height);
+
+  tint(255, 255, 255, 30);
   push();
   // scale(-1, 1);
   image(video, 0, 0, width, width * video.height / video.width);
   pop();
 
-  if (detections.length > 0) {
-    drawLines([0, 5, 9, 13, 17, 0]);//palm
-    drawLines([0, 1, 2, 3, 4]);//thumb
-    drawLines([5, 6, 7, 8]);//index finger
-    drawLines([9, 10, 11, 12]);//middle finger
-    drawLines([13, 14, 15, 16]);//ring finger
-    drawLines([17, 18, 19, 20]);//pinky
+  noTint();
 
-    drawLandmarks([0, 1], 0);//palm base
-    drawLandmarks([1, 5], 60);//thumb
-    drawLandmarks([5, 9], 120);//index finger
-    drawLandmarks([9, 13], 180);//middle finger
-    drawLandmarks([13, 17], 240);//ring finger
-    drawLandmarks([17, 21], 300);//pinky
+
+  if (detections.length > 0) {
+    // drawLines([0, 5, 9, 13, 17, 0]);//palm
+    // drawLines([0, 1, 2, 3, 4]);//thumb
+    // drawLines([5, 6, 7, 8]);//index finger 
+    // drawLines([9, 10, 11, 12]);//middle finger
+    // drawLines([13, 14, 15, 16]);//ring finger
+    // drawLines([17, 18, 19, 20]);//pinky
+
+    // drawLandmarks([0, 1], 0);//palm base
+    drawLandmarks([4, 5], 60);//thumb
+    // drawLandmarks([1, 5], 60);//thumb
+
+    // drawLandmarks([5, 9], 120);//index finger
+    drawLandmarks([8, 9], 120);//index finger
+
+    // drawLandmarks([9, 13], 180);//middle finger
+    // drawLandmarks([13, 17], 240);//ring finger
+    // drawLandmarks([17, 21], 300);//pinky
   }
+
 }
+
+// pinch
+// thumb & index finger at the same coördinate
+// nr 4 -> last dot
+
+
 
 function drawLandmarks(indexArray, hue) {
   noFill();

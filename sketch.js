@@ -57,7 +57,6 @@ function modelReady() {
   console.log("Model ready!");
   handpose.on('predict', results => {
     detections = results;
-
     // console.log(detections);
   });
 }
@@ -81,7 +80,6 @@ function update() {
     brushPos = v1;
 
     if (dist < 40) {
-      
       isPainting = true;
       console.log("updating");
     }
@@ -90,13 +88,11 @@ function update() {
       console.log("reset");
       isPainting = false;
     }
-
     // console.log(dist);
   }
   else {
     isPainting = false;
   }
-
   // console.log(brushPos, brushPosOld)
 }
 
@@ -104,20 +100,17 @@ function draw() {
   update();
   background(0);
   //clear();
-
   //In webgl mode, origin of the coordinate setted to centre.
   //So I re-positioned it to top-left.
   translate(-width / 2, -height / 2);
 
   if (isPainting) {
-
     painting.fill(0, 0, 255);
     // painting.ellipse(brushPos.x * ratio, brushPos.y * ratio, 20);
     painting.strokeWeight(10);
     painting.line(brushPos.x * ratio, brushPos.y * ratio, brushPosOld.x * ratio, brushPosOld.y * ratio);
 
   }
-
 
   image(painting, 0, 0, width, height);
 
@@ -129,7 +122,6 @@ function draw() {
 
   noTint();
 
-
   if (detections.length > 0) {
     // drawLines([0, 5, 9, 13, 17, 0]);//palm
     // drawLines([0, 1, 2, 3, 4]);//thumb
@@ -139,24 +131,21 @@ function draw() {
     // drawLines([17, 18, 19, 20]);//pinky
 
     // drawLandmarks([0, 1], 0);//palm base
-    drawLandmarks([4, 5], 60);//thumb
     // drawLandmarks([1, 5], 60);//thumb
-
     // drawLandmarks([5, 9], 120);//index finger
-    drawLandmarks([8, 9], 120);//index finger
-
     // drawLandmarks([9, 13], 180);//middle finger
     // drawLandmarks([13, 17], 240);//ring finger
     // drawLandmarks([17, 21], 300);//pinky
+
+    // mainpoints fingers
+    drawLandmarks([0, 1, 0]); // palm base
+    drawLandmarks([4, 5], 60); //thumb 
+    drawLandmarks([8, 9], 120); //index finger 
+    drawLandmarks([12, 13, 180]); // middle finger
+    drawLandmarks([16, 17, 240]); // ring finger
+    drawLandmarks([20, 21, 300]); // pinky
   }
-
 }
-
-// pinch
-// thumb & index finger at the same coördinate
-// nr 4 -> last dot
-
-
 
 function drawLandmarks(indexArray, hue) {
   noFill();
@@ -166,7 +155,7 @@ function drawLandmarks(indexArray, hue) {
       let x = detections[i].landmarks[j][0];
       let y = detections[i].landmarks[j][1];
       let z = detections[i].landmarks[j][2];
-      stroke(hue, 40, 255);
+      stroke(hue, 80, 255);
       point(x * ratio, y * ratio);
     }
   }

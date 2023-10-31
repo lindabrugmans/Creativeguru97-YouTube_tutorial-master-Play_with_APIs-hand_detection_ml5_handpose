@@ -10,6 +10,10 @@ let brushPos
 let brushPosOld
 let isPainting = false;
 
+let brushPosTwoRed
+let brushPosOldRed
+let isPaintingRed = false;
+
 function setup() {
   // canvas = createCanvas(640, 480, WEBGL);
   canvas = createCanvas(1024, 768, WEBGL);//3D mode!!! 320 240
@@ -20,6 +24,9 @@ function setup() {
 
   brushPos = createVector(0, 0, 0)
   brushPosOld = createVector(0, 0, 0)
+  
+  brushPosRed = createVector(0, 0, 0)
+  brushPosOldRed = createVector(0, 0, 0)
 
   let constraints = {
     video: {
@@ -67,32 +74,64 @@ function update() {
     let yThumb = detections[0].landmarks[4][1];
     let zThumb = detections[0].landmarks[4][2];
 
-    let xIndex = detections[0].landmarks[8][0];
-    let yIndex = detections[0].landmarks[8][1];
-    let zIndex = detections[0].landmarks[8][2];
+    let xPinky = detections[0].landmarks[20][0];
+    let yPinky = detections[0].landmarks[20][1];
+    let zPinky = detections[0].landmarks[20][2];
 
     let v1 = createVector(xThumb, yThumb, zThumb);
-    let v2 = createVector(xIndex, yIndex, zIndex);
+    let v2 = createVector(xPinky, yPinky, zPinky);
 
-    let dist = v1.dist(v2); // distance is 
+    let dist = v1.dist(v2);
 
-    brushPosOld = brushPos;
-    brushPos = v1;
+    brushPosOldRed = brushPosRed;
+    brushPosRed = v1;
 
     if (dist < 40) {
-      isPainting = true;
-      console.log("updating");
+      isPaintingRed = true;
+      // console.log("updating 2");
     }
     else {
       // brushPosOld = brushPos;
-      console.log("reset");
-      isPainting = false;
+      // console.log("reset 2");
+      isPaintingRed = false;
     }
     // console.log(dist);
   }
   else {
+    isPaintingRed = false;
+  }
+
+if (detections.length > 0) {
+  let xThumb = detections[0].landmarks[4][0];
+  let yThumb = detections[0].landmarks[4][1];
+  let zThumb = detections[0].landmarks[4][2];
+
+  let xIndex = detections[0].landmarks[8][0];
+  let yIndex = detections[0].landmarks[8][1];
+  let zIndex = detections[0].landmarks[8][2];
+
+  let v1 = createVector(xThumb, yThumb, zThumb);
+  let v2 = createVector(xIndex, yIndex, zIndex);
+
+  let dist = v1.dist(v2); // distance is 
+
+  brushPosOld = brushPos;
+  brushPos = v1;
+
+  if (dist < 40) {
+    isPainting = true;
+    // console.log("updating");
+  }
+  else {
+    // brushPosOld = brushPos;
+    // console.log("reset");
     isPainting = false;
   }
+  // console.log(dist);
+}
+else {
+  isPainting = false;
+}
   // console.log(brushPos, brushPosOld)
 }
 
@@ -105,11 +144,19 @@ function draw() {
   translate(-width / 2, -height / 2);
 
   if (isPainting) {
-    painting.fill(0, 0, 255);
+    painting.fill(0, 255, 0);
+    painting.stroke('green');
     // painting.ellipse(brushPos.x * ratio, brushPos.y * ratio, 20);
     painting.strokeWeight(10);
     painting.line(brushPos.x * ratio, brushPos.y * ratio, brushPosOld.x * ratio, brushPosOld.y * ratio);
+  }
 
+  if(isPaintingRed){
+    painting.fill(0, 255, 0);
+    painting.stroke('red');
+    // painting.ellipse(brushPos.x * ratio, brushPos.y * ratio, 20);
+    painting.strokeWeight(10);
+    painting.line(brushPosRed.x * ratio, brushPosRed.y * ratio, brushPosOldRed.x * ratio, brushPosOldRed.y * ratio);
   }
 
   image(painting, 0, 0, width, height);

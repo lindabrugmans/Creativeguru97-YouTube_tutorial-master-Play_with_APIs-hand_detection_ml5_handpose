@@ -24,7 +24,7 @@ function setup() {
 
   brushPos = createVector(0, 0, 0)
   brushPosOld = createVector(0, 0, 0)
-  
+
   brushPosRed = createVector(0, 0, 0)
   brushPosOldRed = createVector(0, 0, 0)
 
@@ -34,7 +34,7 @@ function setup() {
         minWidth: 640,
         minHeight: 480
       },
-      optional: [{ maxFrameRate: 30 }]
+      optional: [{ maxFrameRate: 60 }]
     },
     audio: false
   };
@@ -101,37 +101,37 @@ function update() {
     isPaintingRed = false;
   }
 
-if (detections.length > 0) {
-  let xThumb = detections[0].landmarks[4][0];
-  let yThumb = detections[0].landmarks[4][1];
-  let zThumb = detections[0].landmarks[4][2];
+  if (detections.length > 0) {
+    let xThumb = detections[0].landmarks[4][0];
+    let yThumb = detections[0].landmarks[4][1];
+    let zThumb = detections[0].landmarks[4][2];
 
-  let xIndex = detections[0].landmarks[8][0];
-  let yIndex = detections[0].landmarks[8][1];
-  let zIndex = detections[0].landmarks[8][2];
+    let xIndex = detections[0].landmarks[8][0];
+    let yIndex = detections[0].landmarks[8][1];
+    let zIndex = detections[0].landmarks[8][2];
 
-  let v1 = createVector(xThumb, yThumb, zThumb);
-  let v2 = createVector(xIndex, yIndex, zIndex);
+    let v1 = createVector(xThumb, yThumb, zThumb);
+    let v2 = createVector(xIndex, yIndex, zIndex);
 
-  let dist = v1.dist(v2); // distance is 
+    let dist = v1.dist(v2); // distance is 
 
-  brushPosOld = brushPos;
-  brushPos = v1;
+    brushPosOld = brushPos;
+    brushPos = v1;
 
-  if (dist < 40) {
-    isPainting = true;
-    // console.log("updating");
+    if (dist < 40) {
+      isPainting = true;
+      // console.log("updating");
+    }
+    else {
+      // brushPosOld = brushPos;
+      // console.log("reset");
+      isPainting = false;
+    }
+    // console.log(dist);
   }
   else {
-    // brushPosOld = brushPos;
-    // console.log("reset");
     isPainting = false;
   }
-  // console.log(dist);
-}
-else {
-  isPainting = false;
-}
   // console.log(brushPos, brushPosOld)
 }
 
@@ -151,7 +151,7 @@ function draw() {
     painting.line(brushPos.x * ratio, brushPos.y * ratio, brushPosOld.x * ratio, brushPosOld.y * ratio);
   }
 
-  if(isPaintingRed){
+  if (isPaintingRed) {
     painting.fill(0, 255, 0);
     painting.stroke('red');
     // painting.ellipse(brushPos.x * ratio, brushPos.y * ratio, 20);
